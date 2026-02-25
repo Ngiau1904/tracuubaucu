@@ -64,15 +64,15 @@ fetch("khuvuc.csv")
 
     if(!row.trim()) return;
 
-    const cols = row.split(",");
-
-    if(cols.length < 5) return;
+    // Đọc CSV đúng chuẩn (xử lý dấu phẩy trong lat,lng)
+    const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+    if(!cols || cols.length < 5) return;
 
     const donVi = cols[0].trim();
     const khuVuc = cols[1].trim();
     const apList = cols[2];
     const diaDiem = cols[3].trim();
-    const latlng = cols[4].trim();
+    const latlng = cols[4].replace(/"/g,"").trim();
 
     if(!donViData[donVi]){
       donViData[donVi] = {
@@ -84,7 +84,7 @@ fetch("khuvuc.csv")
     donViData[donVi].khuVuc[khuVuc] = {
       ten: "Khu vực số " + khuVuc,
       location: diaDiem,
-      mapLink: `https://www.google.com/maps/dir/?api=1&destination=${latlng}`,
+      mapLink: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(latlng)}`,
       ap: apList
             .split(";")
             .map(a => a.replace(/\D/g,""))
@@ -158,7 +158,7 @@ function searchArea(){
           <b>${donViData[dv].ten}</b><br>
           ${khu.ten}<br>
           Địa điểm: ${khu.location}<br><br>
-          <button onclick="location.href='${khu.mapLink}'">Chỉ đường</button>
+          <button onclick="openMap('${khu.mapLink}')">Chỉ đường</button>
           <button onclick="showCandidates('${dv}')">Danh sách ứng cử viên</button>
         `;
         return;
@@ -167,6 +167,12 @@ function searchArea(){
   }
 
   resultDiv.innerHTML = "Không tìm thấy ấp.";
+}
+
+/* ================= MỞ GOOGLE MAPS ================= */
+
+function openMap(link){
+  window.location.href = link;
 }
 
 /* ================= MODAL ================= */
@@ -194,5 +200,4 @@ function closeModal(){
 </script>
 
 </body>
-
 </html>
