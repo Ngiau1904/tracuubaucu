@@ -71,7 +71,7 @@ fetch("khuvuc.csv")
     const khuVuc = cols[1].trim();
     const apList = cols[2];
     const diaDiem = cols[3].trim();
-    const latlng = cols[4].replace(/"/g,"").trim();
+    const latlngRaw = cols[4];
 
     if(!donViData[donVi]){
       donViData[donVi] = {
@@ -80,9 +80,22 @@ fetch("khuvuc.csv")
       };
     }
 
-    const parts = latlng.split(",");
-    const lat = parts[0];
-    const lng = parts[1];
+    /* ===== FIX TỌA ĐỘ TỰ ĐỘNG ===== */
+    const latlngClean = latlngRaw.replace(/"/g,"").trim();
+    const parts = latlngClean.split(/[,|\s]+/);
+
+    let lat = null;
+    let lng = null;
+
+    if(parts.length >= 2){
+      lat = parseFloat(parts[0]);
+      lng = parseFloat(parts[1]);
+    }
+
+    if(isNaN(lat) || isNaN(lng)){
+      console.error("Sai định dạng tọa độ:", latlngClean);
+      return;
+    }
 
     donViData[donVi].khuVuc[khuVuc] = {
       ten: "Khu vực bỏ phiếu số " + khuVuc,
@@ -166,7 +179,7 @@ function searchArea(){
           <b>${donViData[dv].ten}</b><br>
           ${khu.ten}<br>
           Địa điểm: ${khu.location}<br><br>
-          <button onclick="chiDuong('${khu.lat}','${khu.lng}')">Chỉ đường</button>
+          <button onclick="chiDuong(${khu.lat},${khu.lng})">Chỉ đường</button>
           <button onclick="showCandidates('${dv}')">Danh sách ứng cử viên</button>
         `;
         return;
@@ -177,9 +190,14 @@ function searchArea(){
   resultDiv.innerHTML = "Không tìm thấy ấp.";
 }
 
-/* ================= CHỈ ĐƯỜNG FIX 100% ================= */
+/* ================= CHỈ ĐƯỜNG ỔN ĐỊNH ================= */
 
 function chiDuong(lat, lng) {
+
+  if(isNaN(lat) || isNaN(lng)){
+    alert("Tọa độ không hợp lệ.");
+    return;
+  }
 
   if (!navigator.geolocation) {
     alert("Trình duyệt không hỗ trợ định vị.");
@@ -192,9 +210,12 @@ function chiDuong(lat, lng) {
       const userLat = position.coords.latitude;
       const userLng = position.coords.longitude;
 
-      const url = `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLng}&destination=${lat},${lng}&travelmode=driving`;
+      const url =
+        "https://www.google.com/maps/dir/?api=1" +
+        "&origin=" + userLat + "," + userLng +
+        "&destination=" + lat + "," + lng +
+        "&travelmode=driving";
 
-      // Không dùng window.open nữa để tránh bị chặn popup
       window.location.href = url;
 
     },
