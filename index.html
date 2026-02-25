@@ -80,15 +80,15 @@ fetch("khuvuc.csv")
       };
     }
 
-    donViData[donVi].khuVuc[khuVuc] = {
-      ten: "Khu vực số " + khuVuc,
-      location: diaDiem,
-      mapLink: `https://www.google.com/maps/dir/?api=1&destination=${latlng}`,
-      ap: apList
-            .split(";")
-            .map(a => a.replace(/\D/g,""))
-            .filter(a => a !== "")
-    };
+   donViData[donVi].khuVuc[khuVuc] = {
+  ten: "Khu vực số " + khuVuc,
+  location: diaDiem,
+  mapLink: `https://www.google.com/maps/dir/?api=1&destination=${latlng}`,
+  ap: apList
+        .split(";")
+        .map(a => a.trim())
+        .filter(a => a !== "")
+};
 
   });
 
@@ -200,4 +200,5 @@ function closeModal(){
 
 </body>
 </html>
+
 
