@@ -84,7 +84,7 @@ fetch("khuvuc.csv")
     donViData[donVi].khuVuc[khuVuc] = {
       ten: "Khu vực bỏ phiếu số " + khuVuc,
       location: diaDiem,
-      mapLink: `https://www.google.com/maps/dir/?api=1&destination=${latlng.replace("|",",")}`,
+      mapLink: `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${latlng.replace("|",",")}&travelmode=driving`,
       ap: apList
             .split(";")
             .map(a => a.replace(/\D/g,""))
@@ -195,5 +195,6 @@ function closeModal(){
 
 </body>
 </html>
+
 
 
