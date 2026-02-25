@@ -65,14 +65,13 @@ fetch("khuvuc.csv")
     if(!row.trim()) return;
 
     const cols = row.split(",");
-
     if(cols.length < 5) return;
 
     const donVi = cols[0].trim();
     const khuVuc = cols[1].trim();
     const apList = cols[2];
     const diaDiem = cols[3].trim();
-    const latlng = cols[4].trim();
+    const latlng = cols[4].replace(/"/g,"").trim();
 
     if(!donViData[donVi]){
       donViData[donVi] = {
@@ -80,22 +79,28 @@ fetch("khuvuc.csv")
         khuVuc: {}
       };
     }
-    const latlngClean = latlng.replace(/"/g,"");
-    const parts = latlngClean.split(",");
+
+    const parts = latlng.split(",");
     const lat = parts[0];
     const lng = parts[1];
+
     donViData[donVi].khuVuc[khuVuc] = {
-    ten: "Khu vực bỏ phiếu số " + khuVuc,
-    location: diaDiem,
-    lat: lat,
-    lng: lng,
-    ap: apList
-        .split(";")
+      ten: "Khu vực bỏ phiếu số " + khuVuc,
+      location: diaDiem,
+      lat: lat,
+      lng: lng,
+      ap: apList.split(";")
         .map(a => a.replace(/\D/g,""))
         .filter(a => a !== "")
     };
+
   });
+
   dataLoaded = true;
+
+})
+.catch(err=>{
+  console.error("Lỗi load khuvuc.csv:", err);
 });
 
 /* ================= LOAD ỨNG VIÊN ================= */
@@ -122,9 +127,11 @@ fetch("ungvien.csv")
     }
 
     ungVienData[donVi].push({hoTen, chucVu});
-
   });
 
+})
+.catch(err=>{
+  console.error("Lỗi load ungvien.csv:", err);
 });
 
 /* ================= SEARCH ================= */
@@ -146,7 +153,6 @@ function searchArea(){
   }
 
   for(let dv in donViData){
-
     for(let kv in donViData[dv].khuVuc){
 
       const khu = donViData[dv].khuVuc[kv];
@@ -171,6 +177,38 @@ function searchArea(){
   resultDiv.innerHTML = "Không tìm thấy ấp.";
 }
 
+/* ================= CHỈ ĐƯỜNG FIX 100% ================= */
+
+function chiDuong(lat, lng) {
+
+  if (!navigator.geolocation) {
+    alert("Trình duyệt không hỗ trợ định vị.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    function(position) {
+
+      const userLat = position.coords.latitude;
+      const userLng = position.coords.longitude;
+
+      const url = `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLng}&destination=${lat},${lng}&travelmode=driving`;
+
+      // Không dùng window.open nữa để tránh bị chặn popup
+      window.location.href = url;
+
+    },
+    function(error) {
+      alert("Không lấy được vị trí: " + error.message);
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
+    }
+  );
+}
+
 /* ================= MODAL ================= */
 
 function showCandidates(dv){
@@ -192,34 +230,8 @@ function showCandidates(dv){
 function closeModal(){
   document.getElementById("candidateModal").style.display="none";
 }
-  function chiDuong(lat, lng) {
-
-  if (!navigator.geolocation) {
-    alert("Trình duyệt không hỗ trợ định vị.");
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(function(position) {
-
-    const userLat = position.coords.latitude;
-    const userLng = position.coords.longitude;
-
-    const url = `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLng}&destination=${lat},${lng}&travelmode=driving`;
-
-    window.open(url, "_blank");
-
-  }, function() {
-    alert("Vui lòng cho phép truy cập vị trí để sử dụng chức năng chỉ đường.");
-  });
-
-}
 
 </script>
 
 </body>
 </html>
-
-
-
-
-
