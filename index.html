@@ -158,7 +158,7 @@ function searchArea(){
           <b>${donViData[dv].ten}</b><br>
           ${khu.ten}<br>
           Địa điểm: ${khu.location}<br><br>
-          <button onclick="window.open('${khu.mapLink}','_blank')">Chỉ đường</button>
+          <button onclick="location.href='${khu.mapLink}'">Chỉ đường</button>
           <button onclick="showCandidates('${dv}')">Danh sách ứng cử viên</button>
         `;
         return;
@@ -194,4 +194,5 @@ function closeModal(){
 </script>
 
 </body>
+
 </html>
