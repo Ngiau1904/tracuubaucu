@@ -32,7 +32,7 @@ iframe { width:100%; height:60vh; border:none; }
 <div class="search-box">
 <input type="text" id="searchInput" placeholder="Nhập số Ấp (ví dụ: 6)">
 <br>
-<button onclick="searchArea()">Tìm kiếm</button>
+<button onclick="chiDuong('${lat}','${lng}')">Chỉ đường</button>
 </div>
 
 <div class="result" id="result"></div>
@@ -190,11 +190,33 @@ function showCandidates(dv){
 function closeModal(){
   document.getElementById("candidateModal").style.display="none";
 }
+  function chiDuong(lat, lng) {
+
+  if (!navigator.geolocation) {
+    alert("Trình duyệt không hỗ trợ định vị.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(function(position) {
+
+    const userLat = position.coords.latitude;
+    const userLng = position.coords.longitude;
+
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLng}&destination=${lat},${lng}&travelmode=driving`;
+
+    window.open(url, "_blank");
+
+  }, function() {
+    alert("Vui lòng cho phép truy cập vị trí để sử dụng chức năng chỉ đường.");
+  });
+
+}
 
 </script>
 
 </body>
 </html>
+
 
 
 
