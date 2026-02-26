@@ -77,6 +77,8 @@ iframe{
   border:none;
 }
 
+/* ===== MODAL ===== */
+
 .modal{
   display:none;
   position:fixed;
@@ -85,26 +87,74 @@ iframe{
   top:0;
   width:100%;
   height:100%;
-  background:rgba(0,0,0,0.6);
+  background:rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
 }
 
 .modal-content{
   background:white;
-  margin:8% auto;
-  padding:20px;
+  margin:6% auto;
   width:90%;
-  max-width:500px;
+  max-width:550px;
   border-radius:var(--radius);
-  text-align:left;
-  max-height:70vh;
+  overflow:hidden;
+  animation:fadeIn .25s ease;
+  max-height:80vh;
+  display:flex;
+  flex-direction:column;
+}
+
+@keyframes fadeIn{
+  from{transform:translateY(-10px);opacity:0;}
+  to{transform:translateY(0);opacity:1;}
+}
+
+.modal-header{
+  background:var(--primary);
+  color:white;
+  padding:14px 20px;
+  font-weight:bold;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.modal-body{
+  padding:20px;
   overflow-y:auto;
 }
 
+/* ===== CANDIDATE CARD ===== */
+
+.candidate-item{
+  padding:12px;
+  border:1px solid #eee;
+  border-left:4px solid var(--primary);
+  border-radius:8px;
+  margin-bottom:12px;
+  background:#fafafa;
+  transition:.2s;
+}
+
+.candidate-item:hover{
+  background:#fff3f3;
+  border-color:var(--primary);
+}
+
+.candidate-name{
+  font-weight:bold;
+  margin-bottom:4px;
+}
+
+.candidate-role{
+  font-style:italic;
+  color:#555;
+  font-size:14px;
+}
+
 .close{
-  float:right;
-  font-size:22px;
+  font-size:20px;
   cursor:pointer;
-  color:var(--primary);
   font-weight:bold;
 }
 </style>
@@ -116,7 +166,7 @@ iframe{
 
 <div class="subheader">
   <h2>TRA CỨU KHU VỰC BẦU CỬ</h2>
-  PHỤC VỤ KỲ BẦU CỬ ĐẠI BIỂU HỘI ĐỒNG NHÂN DÂN XÃ BÌNH HƯNG NHIỆM KỲ 2026 – 2031
+  Phục vụ kỳ bầu cử đại biểu nhiệm kỳ 2026 - 2031
 </div>
 
 <div class="search-box">
@@ -129,10 +179,14 @@ iframe{
 
 <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1gITwU3d380FC3IX0FIsakBIetcsY_o4&ehbc=2E312F"></iframe>
 
+<!-- MODAL -->
 <div id="candidateModal" class="modal">
   <div class="modal-content">
-    <span class="close" id="closeModalBtn">×</span>
-    <div id="candidateInfo"></div>
+    <div class="modal-header">
+      <span>Danh sách ứng cử viên</span>
+      <span class="close" id="closeModalBtn">×</span>
+    </div>
+    <div class="modal-body" id="candidateInfo"></div>
   </div>
 </div>
 
@@ -142,7 +196,7 @@ let donViData = {};
 let ungVienData = {};
 let dataLoaded = false;
 
-/* ================= LOAD DATA ================= */
+/* LOAD DATA */
 
 Promise.all([
   fetch("khuvuc.csv").then(res=>res.text()),
@@ -150,7 +204,6 @@ Promise.all([
 ])
 .then(([khuvucCSV, ungvienCSV])=>{
 
-  /* ===== LOAD KHU VỰC ===== */
   const rows = khuvucCSV.replace(/^\uFEFF/, '').split(/\r?\n/);
 
   rows.slice(1).forEach(row=>{
@@ -175,18 +228,10 @@ Promise.all([
     const latlngClean = latlngRaw.replace(/"/g,"").trim();
     const parts = latlngClean.split(/[,|\s]+/);
 
-    let lat = null;
-    let lng = null;
+    let lat = parseFloat(parts[0]);
+    let lng = parseFloat(parts[1]);
 
-    if(parts.length >= 2){
-      lat = parseFloat(parts[0]);
-      lng = parseFloat(parts[1]);
-    }
-
-    if(isNaN(lat) || isNaN(lng)){
-      console.error("Sai định dạng tọa độ:", latlngClean);
-      return;
-    }
+    if(isNaN(lat) || isNaN(lng)) return;
 
     donViData[donVi].khuVuc[khuVuc] = {
       ten: "Khu vực bỏ phiếu số " + khuVuc,
@@ -199,7 +244,6 @@ Promise.all([
     };
   });
 
-  /* ===== LOAD ỨNG VIÊN ===== */
   const rows2 = ungvienCSV.replace(/^\uFEFF/, '').split(/\r?\n/).slice(1);
 
   rows2.forEach(row=>{
@@ -221,18 +265,16 @@ Promise.all([
 
   dataLoaded = true;
 })
-.catch(err=>{
-  console.error("Lỗi load dữ liệu:", err);
-});
+.catch(err=>console.error(err));
 
-/* ================= SEARCH ================= */
+/* SEARCH */
 
 function searchArea(){
 
   const resultDiv = document.getElementById("result");
 
   if(!dataLoaded){
-    resultDiv.textContent = "Đang tải dữ liệu, vui lòng thử lại...";
+    resultDiv.textContent = "Đang tải dữ liệu...";
     return;
   }
 
@@ -275,23 +317,40 @@ function searchArea(){
   resultDiv.textContent = "Không tìm thấy ấp.";
 }
 
-/* ================= CHỈ ĐƯỜNG ================= */
+/* SHOW CANDIDATES */
 
-function chiDuong(lat, lng){
+function showCandidates(dv){
 
-  if(isNaN(lat) || isNaN(lng)){
-    alert("Tọa độ không hợp lệ.");
-    return;
-  }
+  const list = ungVienData[dv] || [];
+  let html = "";
 
-  if(!navigator.geolocation){
-    alert("Trình duyệt không hỗ trợ định vị.");
-    return;
-  }
+  list.forEach((c,index)=>{
+    html += `
+      <div class="candidate-item">
+        <div class="candidate-name">
+          ${index+1}. ${c.hoTen}
+        </div>
+        <div class="candidate-role">
+          ${c.chucVu}
+        </div>
+      </div>
+    `;
+  });
+
+  document.getElementById("candidateInfo").innerHTML = html;
+  document.getElementById("candidateModal").style.display="block";
+}
+
+function closeModal(){
+  document.getElementById("candidateModal").style.display="none";
+}
+
+/* CHỈ ĐƯỜNG */
+
+function chiDuong(lat,lng){
 
   navigator.geolocation.getCurrentPosition(
     function(position){
-
       const userLat = position.coords.latitude;
       const userLng = position.coords.longitude;
 
@@ -302,60 +361,26 @@ function chiDuong(lat, lng){
         "&travelmode=driving";
 
       window.location.href = url;
-    },
-    function(error){
-      alert("Không lấy được vị trí: " + error.message);
-    },
-    {
-      enableHighAccuracy:true,
-      timeout:15000,
-      maximumAge:0
     }
   );
 }
 
-/* ================= MODAL ================= */
-
-function showCandidates(dv){
-
-  const list = ungVienData[dv] || [];
-
-  let html = "<h3>Danh sách ứng cử viên</h3><ul>";
-
-  list.forEach(c=>{
-    html += `<li><b>${c.hoTen}</b><br><i>${c.chucVu}</i></li><br>`;
-  });
-
-  html += "</ul>";
-
-  document.getElementById("candidateInfo").innerHTML = html;
-  document.getElementById("candidateModal").style.display="block";
-}
-
-function closeModal(){
-  document.getElementById("candidateModal").style.display="none";
-}
-
-/* ================= EVENT LISTENER ================= */
+/* EVENTS */
 
 document.getElementById("searchBtn")
   .addEventListener("click", searchArea);
 
 document.getElementById("searchInput")
-  .addEventListener("keydown", function(e){
-    if(e.key === "Enter"){
-      searchArea();
-    }
+  .addEventListener("keydown", e=>{
+    if(e.key==="Enter") searchArea();
   });
 
 document.getElementById("closeModalBtn")
   .addEventListener("click", closeModal);
 
-window.addEventListener("click", function(e){
-  const modal = document.getElementById("candidateModal");
-  if(e.target === modal){
-    closeModal();
-  }
+window.addEventListener("click", e=>{
+  const modal=document.getElementById("candidateModal");
+  if(e.target===modal) closeModal();
 });
 
 </script>
