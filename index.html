@@ -231,7 +231,7 @@ iframe{
 </div>
 
 <div class="search-box">
-  <input type="text" id="searchInput" placeholder="Nhập số Ấp (ví dụ: 6)">
+  <input type="text" id="searchInput" placeholder="Nhập Số Ấp (Ví Dụ: 6)">
   <br>
   <button id="searchBtn">Tìm kiếm</button>
 </div>
@@ -329,7 +329,15 @@ Promise.all([
 .catch(err=>console.error(err));
 
 /* SEARCH */
-
+function normalizeInput(value){
+  return value
+    .toLowerCase()
+    .normalize("NFD")                 // tách dấu tiếng Việt
+    .replace(/[\u0300-\u036f]/g, "")  // bỏ dấu
+    .replace(/ap/g, "")               // bỏ chữ ap
+    .replace(/\D/g, "")               // giữ lại số
+    .trim();
+}
 function searchArea(){
 
   const resultDiv = document.getElementById("result");
@@ -339,7 +347,8 @@ function searchArea(){
     return;
   }
 
-  const input = document.getElementById("searchInput").value.trim();
+  const rawInput = document.getElementById("searchInput").value;
+const input = normalizeInput(rawInput);
 
   if(!input){
     resultDiv.textContent = "Vui lòng nhập số ấp.";
@@ -452,6 +461,7 @@ window.addEventListener("click", e=>{
 
 </body>
 </html>
+
 
 
 
