@@ -60,17 +60,60 @@ button:hover{
   background:var(--primary-dark);
 }
 
+  /* ===== RESULT BOX HÀNH CHÍNH ===== */
+
 .result{
-  margin:20px auto;
-  font-size:16px;
-  background:white;
-  padding:20px;
+  margin:30px auto;
   width:90%;
-  max-width:500px;
-  border-radius:var(--radius);
-  box-shadow:0 5px 20px rgba(0,0,0,0.08);
-  line-height:1.6; 
+  max-width:550px;
+  background:white;
+  border-radius:12px;
+  padding:25px 30px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.08);
+  text-align:center;
+  position:relative;
 }
+
+.result::before{
+  content:"";
+  display:block;
+  width:60px;
+  height:3px;
+  background:var(--primary);
+  margin:0 auto 18px auto;
+  border-radius:3px;
+}
+
+.result-title{
+  font-weight:700;
+  font-size:20px;
+  margin-bottom:12px;
+}
+
+.result-sub{
+  font-size:16px;
+  margin-bottom:12px;
+}
+
+.result-location{
+  font-size:15px;
+  margin-bottom:18px;
+  color:#444;
+}
+
+.result-divider{
+  height:1px;
+  background:#eee;
+  margin:18px 0;
+}
+
+.result-buttons{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  flex-wrap:wrap;
+}
+
 
 iframe{
   width:100%;
@@ -312,13 +355,20 @@ function searchArea(){
       );
 
       if(found){
-        resultDiv.innerHTML = `
-          <b>${donViData[dv].ten}</b><br>
-          ${khu.ten}<br>
-          Địa điểm: ${khu.location}<br><br>
-          <button id="dirBtn">Chỉ đường</button>
-          <button id="candidateBtn">Danh sách ứng cử viên</button>
-        `;
+       resultDiv.innerHTML = `
+  <div class="result-title">${donViData[dv].ten}</div>
+  <div class="result-sub">${khu.ten}</div>
+  <div class="result-location">
+    <strong>Địa điểm:</strong> ${khu.location}
+  </div>
+
+  <div class="result-divider"></div>
+
+  <div class="result-buttons">
+    <button id="dirBtn">Chỉ đường</button>
+    <button id="candidateBtn">Danh sách ứng cử viên</button>
+  </div>
+`;
 
         document.getElementById("dirBtn")
           .addEventListener("click", ()=>chiDuong(khu.lat, khu.lng));
@@ -401,5 +451,6 @@ window.addEventListener("click", e=>{
 
 </body>
 </html>
+
 
 
