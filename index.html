@@ -127,29 +127,45 @@ iframe{
 /* ===== CANDIDATE CARD ===== */
 
 .candidate-item{
-  padding:12px;
-  border:1px solid #eee;
-  border-left:4px solid var(--primary);
-  border-radius:8px;
-  margin-bottom:12px;
-  background:#fafafa;
-  transition:.2s;
+  padding:16px 18px;
+  margin-bottom:14px;
+  border-radius:10px;
+  background:#ffffff;
+  border:1px solid #e5e5e5;
+  box-shadow:0 3px 12px rgba(0,0,0,0.05);
+  transition:all .2s ease;
+  position:relative;
 }
 
 .candidate-item:hover{
-  background:#fff3f3;
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(0,0,0,0.08);
   border-color:var(--primary);
 }
 
-.candidate-name{
+.candidate-number{
+  position:absolute;
+  top:12px;
+  right:14px;
+  background:var(--primary);
+  color:white;
+  font-size:13px;
+  padding:3px 8px;
+  border-radius:20px;
   font-weight:bold;
-  margin-bottom:4px;
+}
+
+.candidate-name{
+  font-weight:700;
+  font-size:17px;
+  margin-bottom:6px;
+  color:#222;
 }
 
 .candidate-role{
-  font-style:italic;
-  color:#555;
   font-size:14px;
+  color:#555;
+  line-height:1.6;
 }
 
 .close{
@@ -327,12 +343,9 @@ function showCandidates(dv){
   list.forEach((c,index)=>{
     html += `
       <div class="candidate-item">
-        <div class="candidate-name">
-          ${index+1}. ${c.hoTen}
-        </div>
-        <div class="candidate-role">
-          ${c.chucVu}
-        </div>
+        <div class="candidate-number">${index+1}</div>
+        <div class="candidate-name">${c.hoTen}</div>
+        <div class="candidate-role">${c.chucVu}</div>
       </div>
     `;
   });
@@ -387,3 +400,4 @@ window.addEventListener("click", e=>{
 
 </body>
 </html>
+
