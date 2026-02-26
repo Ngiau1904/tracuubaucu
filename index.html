@@ -332,10 +332,10 @@ Promise.all([
 function normalizeInput(value){
   return value
     .toLowerCase()
-    .normalize("NFD")                 // tách dấu tiếng Việt
-    .replace(/[\u0300-\u036f]/g, "")  // bỏ dấu
-    .replace(/ap/g, "")               // bỏ chữ ap
-    .replace(/\D/g, "")               // giữ lại số
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ap/g, "")
+    .replace(/\D/g, "")
     .trim();
 }
 function searchArea(){
@@ -461,6 +461,7 @@ window.addEventListener("click", e=>{
 
 </body>
 </html>
+
 
 
 
